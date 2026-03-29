@@ -3,175 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mythogen AME + Alien.js Demo Collection</title>
+    <title>Mythogen AME + Alien.js Demos</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, system-ui, sans-serif; background: #0a0a0f; color: #e0e0e0; min-height: 100vh; }
         .hero { text-align: center; padding: 40px 20px; background: radial-gradient(ellipse at center, rgba(80,200,120,0.1) 0%, transparent 70%); }
         .hero h1 { font-size: 2.2em; background: linear-gradient(90deg, #50c878, #00d4ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .hero p { color: #888; margin-top: 8px; }
         .section { max-width: 1400px; margin: 0 auto; padding: 20px; }
-        .section h2 { color: #50c878; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid rgba(80,200,120,0.3); display: flex; align-items: center; gap: 10px; }
-        .section h2 span { font-size: 0.9em; background: rgba(80,200,120,0.2); padding: 2px 10px; border-radius: 12px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+        .section h2 { color: #50c878; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid rgba(80,200,120,0.3); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
         .card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 16px; display: block; color: inherit; text-decoration: none; transition: all 0.2s; }
         .card:hover { background: rgba(80,200,120,0.1); border-color: #50c878; transform: translateY(-2px); }
         .card h3 { color: #fff; font-size: 1em; margin-bottom: 6px; }
         .card p { color: #666; font-size: 0.8em; }
         .card .tag { display: inline-block; font-size: 0.7em; padding: 2px 8px; border-radius: 8px; margin-top: 6px; }
-        .ame .tag { background: rgba(80,200,120,0.2); color: #50c878; }
-        .alien .tag { background: rgba(0,212,255,0.2); color: #00d4ff; }
-        footer { text-align: center; padding: 30px; color: #444; font-size: 0.85em; }
-        footer a { color: #50c878; }
-        .lib-badge { background: linear-gradient(135deg, rgba(80,200,120,0.15), rgba(0,212,255,0.15)); border: 1px solid rgba(80,200,120,0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px; text-align: center; }
-        .lib-badge h3 { color: #fff; margin-bottom: 8px; }
-        .lib-badge p { color: #888; font-size: 0.85em; }
+        footer { text-align: center; padding: 30px; color: #444; }
     </style>
 </head>
 <body>
     <div class="hero">
         <h1>🌿 Mythogen AME + Alien.js Demos</h1>
-        <p>Interactive visualizations for regenerative community design + 3D graphics library</p>
     </div>
 
     <div class="section">
-        <div class="lib-badge">
-            <h3>🎨 Alien.js Library</h3>
-            <p>MVC design pattern and render pipeline for Three.js. <a href="https://alien.js.org" style="color:#00d4ff">alien.js.org</a> | <a href="https://github.com/alienkitty/alien.js" style="color:#00d4ff">GitHub</a></p>
+        <h2>🌿 AME Core Demos</h2>
+        <div class="grid">
+            <a href="ame/living-seed-pattern/" class="card"><h3>Living Seed Pattern</h3><p>Four Distinctions</p><span class="tag">Core</span></a>
+            <a href="ame/field-of-trust/" class="card"><h3>Field of Trust</h3><p>Hologram visualization</p><span class="tag">Core</span></a>
+            <a href="ame/v-crystal-immune/" class="card"><h3>V-Crystal Immune</h3><p>6 positions</p><span class="tag">Anti-Capture</span></a>
+            <a href="ame/affinity-mapping/" class="card"><h3>Affinity Mapping</h3><p>Values constellation</p><span class="tag">Core</span></a>
+            <a href="ame/concentrix-learning/" class="card"><h3>Concentrix Learning</h3><p>Polycentric co-centering</p><span class="tag">Systems</span></a>
+            <a href="ame/fractal-growth/" class="card"><h3>Fractal Growth</h3><p>100 pods of 5</p><span class="tag">Architecture</span></a>
         </div>
     </div>
 
     <div class="section">
-        <h2>🌿 AME Core Demos <span>6 demos</span></h2>
+        <h2>🎨 Alien.js Examples (87 demos)</h2>
         <div class="grid">
-            <a href="ame/living-seed-pattern/" class="card ame"><h3>🌱 Living Seed Pattern</h3><p>The Four Distinctions: Needs, Beliefs, Principles, Values</p><span class="tag">Core</span></a>
-            <a href="ame/field-of-trust/" class="card ame"><h3>🔮 Field of Trust</h3><p>Hologram trust visualization with 5 indicators</p><span class="tag">Core</span></a>
-            <a href="ame/v-crystal-immune/" class="card ame"><h3>💎 V-Crystal Immune</h3><p>6 archetypal positions: Victor/Villain/Victim/Vengeful/Virtuous/Vulnerable</p><span class="tag">Anti-Capture</span></a>
-            <a href="ame/affinity-mapping/" class="card ame"><h3>🔗 Affinity Mapping</h3><p>Values constellation: Values, Skills, Wounds, Longings</p><span class="tag">Core</span></a>
-            <a href="ame/concentrix-learning/" class="card ame"><h3>🎯 Concentrix Learning</h3><p>Polycentric co-centering vs concentric comparison</p><span class="tag">Systems</span></a>
-            <a href="ame/fractal-growth/" class="card ame"><h3>🌀 Fractal Growth</h3><p>100 pods of 5 — Growth through multiplication</p><span class="tag">Architecture</span></a>
+            <a href="alien/examples/three/3d_abstract_cube.html" class="card"><h3>3D Abstract Cube</h3><p>Geometry demo</p></a>
+            <a href="alien/examples/three/3d_cyberspace.html" class="card"><h3>3D Cyberspace</h3><p>Matrix exploration</p></a>
+            <a href="alien/examples/three/3d_fibonacci_sphere.html" class="card"><h3>3D Fibonacci Sphere</h3><p>Golden angle</p></a>
+            <a href="alien/examples/three/3d_graph_tracking.html" class="card"><h3>3D Graph Tracking</h3><p>Interactive nodes</p></a>
+            <a href="alien/examples/three/3d_penrose_triangle.html" class="card"><h3>3D Penrose Triangle</h3><p>Impossible geometry</p></a>
+            <a href="alien/examples/three/3d_polyhedron.html" class="card"><h3>3D Polyhedron</h3><p>Multi-faceted</p></a>
+            <a href="alien/examples/three/3d_black_holes.html" class="card"><h3>3D Black Holes</h3><p>Gravity simulation</p></a>
+            <a href="alien/examples/three/3d_mesh_points.html" class="card"><h3>3D Mesh Points</h3><p>Point cloud</p></a>
+            <a href="alien/examples/three/3d_ripple.html" class="card"><h3>3D Ripple</h3><p>Ripple effect</p></a>
+            <a href="alien/examples/three/3d_wobble.html" class="card"><h3>3D Wobble</h3><p>Wobble animation</p></a>
+            <a href="alien/examples/three/3d_physics_gravity_balls.html" class="card"><h3>Physics Gravity Balls</h3><p>Physics sim</p></a>
+            <a href="alien/examples/three/shader_bloom.html" class="card"><h3>Shader Bloom</h3><p>Glow effect</p></a>
+            <a href="alien/examples/three/shader_fresnel.html" class="card"><h3>Shader Fresnel</h3><p>Edge glow</p></a>
+            <a href="alien/examples/three/shader_hologram.html" class="card"><h3>Shader Hologram</h3><p>Holographic</p></a>
+            <a href="alien/examples/three/shader_noise.html" class="card"><h3>Shader Noise</h3><p>Noise pattern</p></a>
+            <a href="alien/examples/three/shader_light_rays.html" class="card"><h3>Shader Light Rays</h3><p>God rays</p></a>
+            <a href="alien/examples/three/shader_flowmap.html" class="card"><h3>Shader Flowmap</h3><p>Flow animation</p></a>
+            <a href="alien/examples/three/shader_reflection.html" class="card"><h3>Shader Reflection</h3><p>Mirror effect</p></a>
+            <a href="alien/examples/three/shader_matcap.html" class="card"><h3>Shader Matcap</h3><p>Material capture</p></a>
+            <a href="alien/examples/three/shader_subsurface_scattering.html" class="card"><h3>Shader SSS</h3><p>Subsurface</p></a>
         </div>
     </div>
 
     <div class="section">
-        <h2>🎨 Alien.js 3D Effects <span>88 demos</span></h2>
+        <h2>🎬 Alien.js Transitions (15 demos)</h2>
         <div class="grid">
-            <!-- Transitions -->
-            <a href="alien/examples/three/transitions/page/" class="card alien"><h3>Transitions: Page</h3><p>Page transition effects</p><span class="tag">Transitions</span></a>
-            <a href="alien/examples/three/transitions/scroll/" class="card alien"><h3>Transitions: Scroll</h3><p>Scroll-based transitions</p><span class="tag">Transitions</span></a>
-            <a href="alien/examples/three/transitions/camera/" class="card alien"><h3>Transitions: Camera</h3><p>Camera motion transitions</p><span class="tag">Transitions</span></a>
-            
-            <!-- 3D -->
-            <a href="alien/examples/three/3d_abstract_cube.html" class="card alien"><h3>3D Abstract Cube</h3><p>Abstract geometry demonstration</p><span class="tag">3D</span></a>
-            <a href="alien/examples/three/3d_backdrop.html" class="card alien"><h3>3D Backdrop</h3><p>Background effect demo</p><span class="tag">3D</span></a>
-            <a href="alien/examples/three/3d_black_holes.html" class="card alien"><h3>3D Black Holes</h3><p>Gravity simulation with motion blur</p><span class="tag">3D</span></a>
-            <a href="alien/examples/three/3d_camera_wobble.html" class="card alien"><h3>3D Camera Wobble</h3><p>Camera shake effect</p><span class="tag">3D</span></a>
-            <a href="alien/examples/three/3d_cubecamera.html" class="card alien"><h3>3D Cubecamera</h3><p>Cube camera demo</p><span class="tag">3D</span></a>
-            <a href="alien/examples/three/3d_cubecamera_rainbow.html" class="card alien"><h3>3D Cubecamera Rainbow</h3><p>Rainbow refraction</p><span class="tag">3D</span></a>
-            <a href="alien/examples/three/3d_cubemap_uv.html" class="card alien"><h3>3D Cubemap UV</h3><p>Cubemap mapping</p><span class="tag">3D</span></a>
-            <a href="alien/examples/three/3d_cyberspace.html" class="card alien"><h3>3D Cyberspace</h3><p>Matrix-style exploration</p><span class="tag">3D</span></a>
-            <a href="alien/examples/three/3d_fibonacci_sphere.html" class="card alien"><h3>3D Fibonacci Sphere</h3><p>Golden angle distribution</p><span class="tag">3D</span></a>
-            <a href="alien/examples/three/3d_graph_tracking.html" class="card alien"><h3>3D Graph Tracking</h3><p>Interactive node graph</p><span class="tag">3D</span></a>
-            <a href="alien/examples/three/3d_infinite_stars_rgbshift.html" class="card alien"><h3>3D Infinite Stars</h3><p>RGB shift starfield</p><span class="tag">3D</span></a>
-            <a href="alien/examples/three/3d_input_manager.html" class="card alien"><h3>3D Input Manager</h3><p>Input handling demo</p><span class="tag">3D</span></a>
-            <a href="alien/examples/three/3d_mesh_points.html" class="card alien"><h3>3D Mesh Points</h3><p>Point cloud rendering</p><span class="tag">3D</span></a>
-            <a href="alien/examples/three/3d_panel_tracking.html" class="card alien"><h3>3D Panel Tracking</h3><p>Panel tracking effect</p><span class="tag">3D</span></a>
-            <a href="alien/examples/three/3d_penrose_triangle.html" class="card alien"><h3>3D Penrose Triangle</h3><p>Impossible geometry</p><span class="tag">3D</span></a>
-            <a href="alien/examples/three/3d_polyhedron.html" class="card alien"><h3>3D Polyhedron</h3><p>Multi-faceted geometry</p><span class="tag">3D</span></a>
-            <a href="alien/examples/three/3d_ripple.html" class="card alien"><h3>3D Ripple</h3><p>Ripple effect animation</p><span class="tag">3D</span></a>
-            <a href="alien/examples/three/3d_spherical_cube_uv.html" class="card alien"><h3>3D Spherical Cube UV</h3><p>Hybrid geometry mapping</p><span class="tag">3D</span></a>
-            <a href="alien/examples/three/3d_stripe_gradient.html" class="card alien"><h3>3D Stripe Gradient</h3><p>Stripe pattern gradient</p><span class="tag">3D</span></a>
-            <a href="alien/examples/three/3d_wobble.html" class="card alien"><h3>3D Wobble</h3><p>Wobble animation</p><span class="tag">3D</span></a>
-            <a href="alien/examples/three/3d_crystal_gltf.html" class="card alien"><h3>3D Crystal GLTF</h3><p>Crystal model loading</p><span class="tag">3D</span></a>
-            <a href="alien/examples/three/3d_crystal_gltf_basis_draco.html" class="card alien"><h3>3D Crystal (Draco)</h3><p>Compressed model loading</p><span class="tag">3D</span></a>
-            
-            <!-- Physics -->
-            <a href="alien/examples/three/3d_physics_gravity_balls.html" class="card alien"><h3>Physics: Gravity Balls</h3><p>Physics simulation</p><span class="tag">Physics</span></a>
-            <a href="alien/examples/three/3d_physics_gravity_balls_thread.html" class="card alien"><h3>Physics: Gravity (Thread)</h3><p>Multi-threaded physics</p><span class="tag">Physics</span></a>
-            <a href="alien/examples/three/3d_physics_instancing.html" class="card alien"><h3>Physics: Instancing</h3><p>Instance rendering</p><span class="tag">Physics</span></a>
-            <a href="alien/examples/three/3d_physics_instancing_thread.html" class="card alien"><h3>Physics: Instancing (Thread)</h3><p>Multi-threaded instancing</p><span class="tag">Physics</span></a>
-            <a href="alien/examples/three/3d_physics_picking.html" class="card alien"><h3>Physics: Picking</h3><p>Object selection</p><span class="tag">Physics</span></a>
-            <a href="alien/examples/three/3d_physics_picking_thread.html" class="card alien"><h3>Physics: Picking (Thread)</h3><p>Multi-threaded picking</p><span class="tag">Physics</span></a>
-            
-            <!-- Shaders - Bloom -->
-            <a href="alien/examples/three/shader_bloom.html" class="card alien"><h3>Shader: Bloom</h3><p>Glow post-processing</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_unreal_bloom.html" class="card alien"><h3>Shader: Unreal Bloom</h3><p>High-quality bloom</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_bloom_dither.html" class="card alien"><h3>Shader: Bloom Dither</h3><p>Bloom with dithering</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_bloom_hdr.html" class="card alien"><h3>Shader: Bloom HDR</h3><p>High dynamic range bloom</p><span class="tag">Shader</span></a>
-            
-            <!-- Shaders - Blur -->
-            <a href="alien/examples/three/shader_blur.html" class="card alien"><h3>Shader: Gaussian Blur</h3><p>Blur post-processing</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_single_pass_blur.html" class="card alien"><h3>Shader: Single Pass Blur</h3><p>Optimized blur</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_poisson_disc_blur.html" class="card alien"><h3>Shader: Poisson Blur</h3><p>Poisson-disc blur</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_bokeh_blur.html" class="card alien"><h3>Shader: Bokeh Blur</h3><p>Depth of field blur</p><span class="tag">Shader</span></a>
-            
-            <!-- Shaders - Effects -->
-            <a href="alien/examples/three/shader_chromatic_aberration.html" class="card alien"><h3>Shader: Chromatic Aberration</h3><p>Color fringing</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_barrel_distortion.html" class="card alien"><h3>Shader: Barrel Distortion</h3><p>Lens distortion</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_radial_blur_rgbshift.html" class="card alien"><h3>Shader: Radial Blur RGB</h3><p>Radial blur with RGB</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_radial_glow.html" class="card alien"><h3>Shader: Radial Glow</h3><p>Volumetric light fake</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_film_grain.html" class="card alien"><h3>Shader: Film Grain</h3><p>Grain effect</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_noise.html" class="card alien"><h3>Shader: Noise</h3><p>Noise pattern</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_depth.html" class="card alien"><h3>Shader: Depth</h3><p>Depth buffer effect</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_tilt_shift.html" class="card alien"><h3>Shader: Tilt Shift</h3><p>Miniature effect</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_vignette_blur.html" class="card alien"><h3>Shader: Vignette Blur</h3><p>Blur vignette</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_dof_fake.html" class="card alien"><h3>Shader: Fake DOF</h3><p>Fake depth of field</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_fxaa.html" class="card alien"><h3>Shader: FXAA</h3><p>Fast antialiasing</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_smaa.html" class="card alien"><h3>Shader: SMAA</h3><p>Subpixel antialiasing</p><span class="tag">Shader</span></a>
-            
-            <!-- Shaders - Reflection -->
-            <a href="alien/examples/three/shader_basic_reflection.html" class="card alien"><h3>Shader: Basic Reflection</h3><p>Mirror effect</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_reflection.html" class="card alien"><h3>Shader: Reflection Options</h3><p>Configurable reflection</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_reflection_diffuse.html" class="card alien"><h3>Shader: Diffuse Reflection</h3><p>Diffuse mirror</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_reflection_metalness.html" class="card alien"><h3>Shader: Metalness Reflection</h3><p>Metallic reflection</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_reflection_normalmap.html" class="card alien"><h3>Shader: Normalmap Reflection</h3><p>Normal-mapped reflection</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_reflection_dudv.html" class="card alien"><h3>Shader: DuDv Reflection</h3><p>Distortion reflection</p><span class="tag">Shader</span></a>
-            
-            <!-- Shaders - Flow/Fluid -->
-            <a href="alien/examples/three/shader_flowmap.html" class="card alien"><h3>Shader: Flowmap</h3><p>Flowmap animation</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_flowmap_rgbshift.html" class="card alien"><h3>Shader: Flowmap RGB</h3><p>Flow with color shift</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_flowmap_view.html" class="card alien"><h3>Shader: Flowmap View</h3><p>View-space flow</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_fluid_distortion.html" class="card alien"><h3>Shader: Fluid Distortion</h3><p>Fluid simulation</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_fluid_distortion_rgbshift.html" class="card alien"><h3>Shader: Fluid RGB</h3><p>Fluid with color shift</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_fluid_distortion_view.html" class="card alien"><h3>Shader: Fluid View</h3><p>View-space fluid</p><span class="tag">Shader</span></a>
-            
-            <!-- Shaders - Lighting -->
-            <a href="alien/examples/three/shader_basic_color_lighting.html" class="card alien"><h3>Shader: Color Lighting</h3><p>Position-based lighting</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_basic_texture_lighting.html" class="card alien"><h3>Shader: Texture Lighting</h3><p>Textured lighting</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_matcap.html" class="card alien"><h3>Shader: Matcap</h3><p>Material capture</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_soft_particles.html" class="card alien"><h3>Shader: Soft Particles</h3><p>Particle softening</p><span class="tag">Shader</span></a>
-            
-            <!-- Shaders - Advanced -->
-            <a href="alien/examples/three/shader_fresnel.html" class="card alien"><h3>Shader: Fresnel</h3><p>Edge glow effect</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_hologram.html" class="card alien"><h3>Shader: Hologram</h3><p>Holographic effect</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_subsurface_scattering.html" class="card alien"><h3>Shader: SSS</h3><p>Subsurface scattering</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_light_rays.html" class="card alien"><h3>Shader: Light Rays</h3><p>God rays effect</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_lensflare.html" class="card alien"><h3>Shader: Lens Flare</h3><p>Lens flare effect</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_anamorphic_light.html" class="card alien"><h3>Shader: Anamorphic Light</h3><p>Anamorphic flare</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_anamorphic_light_lensflare.html" class="card alien"><h3>Shader: Anamorphic + Flare</h3><p>Combined effect</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_afterimage.html" class="card alien"><h3>Shader: Afterimage</h3><p>Motion trail</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_datamosh.html" class="card alien"><h3>Shader: Datamosh</h3><p>Video glitch effect</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_motion_blur.html" class="card alien"><h3>Shader: Motion Blur</h3><p>Movement blur</p><span class="tag">Shader</span></a>
-            <a href="alien/examples/three/shader_text.html" class="card alien"><h3>Shader: Text</h3><p>Text rendering</p><span class="tag">Shader</span></a>
-            
-            <!-- Baked -->
-            <a href="alien/examples/three/shader_baked_cube.html" class="card alien"><h3>Baked: Cube</h3><p>Static cube bake</p><span class="tag">Baked</span></a>
-            <a href="alien/examples/three/shader_baked_cube_dudv.html" class="card alien"><h3>Baked: Cube DuDv</h3><p>Cube with distortion</p><span class="tag">Baked</span></a>
-            <a href="alien/examples/three/shader_baked_cube_sss.html" class="card alien"><h3>Baked: Cube SSS</h3><p>Cube with SSS</p><span class="tag">Baked</span></a>
-            <a href="alien/examples/three/shader_baked_abstract_cube.html" class="card alien"><h3>Baked: Abstract Cube</h3><p>Abstract bake</p><span class="tag">Baked</span></a>
-            <a href="alien/examples/three/shader_baked_abstract_cube_dudv.html" class="card alien"><h3>Baked: Abstract DuDv</h3><p>Abstract with distortion</p><span class="tag">Baked</span></a>
-            <a href="alien/examples/three/shader_baked_abstract_cube_sss.html" class="card alien"><h3>Baked: Abstract SSS</h3><p>Abstract with SSS</p><span class="tag">Baked</span></a>
-            <a href="alien/examples/three/shader_baked_spherical_cube.html" class="card alien"><h3>Baked: Spherical Cube</h3><p>Hybrid geometry bake</p><span class="tag">Baked</span></a>
-            <a href="alien/examples/three/shader_baked_spherical_cube_dudv.html" class="card alien"><h3>Baked: Spherical DuDv</h3><p>Spherical distortion</p><span class="tag">Baked</span></a>
-            <a href="alien/examples/three/shader_baked_spherical_cube_sss.html" class="card alien"><h3>Baked: Spherical SSS</h3><p>Spherical SSS</p><span class="tag">Baked</span></a>
-            
-            <!-- Soft Shadows -->
-            <a href="alien/examples/three/shader_soft_shadows.html" class="card alien"><h3>Shader: Soft Shadows</h3><p>Soft shadow mapping</p><span class="tag">Shader</span></a>
+            <a href="alien/examples/three/transitions/page/" class="card"><h3>Transitions: Page</h3><p>Page transitions</p></a>
+            <a href="alien/examples/three/transitions/scroll/" class="card"><h3>Transitions: Scroll</h3><p>Scroll effects</p></a>
+            <a href="alien/examples/three/transitions/camera/" class="card"><h3>Transitions: Camera</h3><p>Camera motion</p></a>
+            <a href="alien/examples/three/transitions/canvas/" class="card"><h3>Transitions: Canvas</h3><p>Canvas transitions</p></a>
+            <a href="alien/examples/three/transitions/scene/" class="card"><h3>Transitions: Scene</h3><p>Scene transitions</p></a>
+            <a href="alien/examples/three/transitions/shader/" class="card"><h3>Transitions: Shader</h3><p>Shader effects</p></a>
         </div>
     </div>
 
     <footer>
-        <p>Mythogen AME: <a href="https://github.com/regentribes/mythogen-ame">GitHub</a></p>
         <p>Alien.js: <a href="https://alien.js.org">alien.js.org</a> | <a href="https://github.com/alienkitty/alien.js">GitHub</a></p>
     </footer>
 </body>
