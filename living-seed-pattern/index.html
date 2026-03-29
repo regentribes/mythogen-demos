@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Living Seed Pattern - Mythogen AME</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%); color: #e0e0e0; min-height: 100vh; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        header { text-align: center; padding: 40px; background: radial-gradient(ellipse at center, rgba(80, 200, 120, 0.1) 0%, transparent 70%); }
+        h1 { font-size: 2.5em; color: #50c878; margin-bottom: 10px; }
+        .subtitle { color: #888; font-size: 1.1em; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 30px; }
+        .panel { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 24px; }
+        .panel h2 { color: #50c878; margin-bottom: 16px; }
+        .four { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        @media (max-width: 600px) { .four { grid-template-columns: 1fr; } }
+        .d { background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 20px; border-left: 4px solid; }
+        .needs { border-color: #ff6b6b; }
+        .beliefs { border-color: #feca57; }
+        .principles { border-color: #48dbfb; }
+        .values { border-color: #50c878; }
+        .d h3 { color: #fff; margin-bottom: 8px; }
+        .d p { font-size: 0.85em; color: #888; margin-bottom: 12px; }
+        .items { display: flex; flex-wrap: wrap; gap: 6px; }
+        .item { background: rgba(255, 255, 255, 0.08); padding: 6px 12px; border-radius: 20px; font-size: 0.8em; cursor: pointer; }
+        .item:hover { background: rgba(80, 200, 120, 0.3); }
+        .viz { grid-column: 1 / -1; background: rgba(0, 0, 0, 0.3); border-radius: 16px; height: 300px; display: flex; align-items: center; justify-content: center; position: relative; }
+        .seed { position: relative; width: 250px; height: 250px; }
+        .center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; background: radial-gradient(circle, #50c878 0%, #2d8659 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2em; cursor: pointer; transition: all 0.3s; }
+        .center:hover { transform: translate(-50%, -50%) scale(1.1); box-shadow: 0 0 40px rgba(80, 200, 120, 0.6); }
+        .orbit { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 1px dashed rgba(255, 255, 255, 0.15); border-radius: 50%; }
+        .o1 { width: 120px; height: 120px; animation: rot 15s linear infinite; }
+        .o2 { width: 180px; height: 180px; animation: rot 20s linear infinite reverse; }
+        .o3 { width: 240px; height: 240px; animation: rot 25s linear infinite; }
+        .node { position: absolute; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7em; }
+        .n { top: -13px; left: 50%; transform: translateX(-50%); background: #ff6b6b; }
+        .b { top: 50%; right: -13px; background: #feca57; }
+        .p { bottom: -13px; left: 50%; transform: translateX(-50%); background: #48dbfb; }
+        .v { top: 50%; left: -13px; background: #50c878; }
+        @keyframes rot { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+        .controls { grid-column: 1 / -1; display: flex; gap: 10px; margin-top: 20px; justify-content: center; }
+        .btn { background: linear-gradient(135deg, #50c878 0%, #2d8659 100%); border: none; color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+        .btn.secondary { background: rgba(255, 255, 255, 0.1); }
+        .info { grid-column: 1 / -1; background: rgba(80, 200, 120, 0.1); border: 1px solid rgba(80, 200, 120, 0.3); border-radius: 12px; padding: 20px; margin-top: 20px; }
+        .info h3 { color: #50c878; margin-bottom: 12px; }
+        .info p { font-size: 0.9em; line-height: 1.6; color: #aaa; }
+        .test { background: rgba(255, 107, 107, 0.1); border: 1px solid rgba(255, 107, 107, 0.3); border-radius: 8px; padding: 12px; margin-top: 12px; }
+        .test strong { color: #ff6b6b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌱 Living Seed Pattern</h1>
+            <p class="subtitle">The Four Distinctions: Needs, Beliefs, Principles, Values</p>
+        </header>
+        <div class="grid">
+            <div class="panel viz">
+                <div class="seed">
+                    <div class="orbit o1"><div class="node n">N</div></div>
+                    <div class="orbit o2"><div class="node b">B</div></div>
+                    <div class="orbit o3"><div class="node p">P</div><div class="node v">V</div></div>
+                    <div class="center">🌱</div>
+                </div>
+            </div>
+            <div class="panel">
+                <h2>The Four Distinctions</h2>
+                <div class="four">
+                    <div class="d needs">
+                        <h3>Needs <span style="font-size:0.7em;background:rgba(255,107,107,0.2);padding:2px 8px;border-radius:10px">You have them</span></h3>
+                        <p>Individual requirements for survival, security, belonging.</p>
+                        <div class="items" id="needs"></div>
+                    </div>
+                    <div class="d beliefs">
+                        <h3>Beliefs <span style="font-size:0.7em;background:rgba(254,202,87,0.2);padding:2px 8px;border-radius:10px">You think them</span></h3>
+                        <p>Mental models and worldviews you hold.</p>
+                        <div class="items" id="beliefs"></div>
+                    </div>
+                    <div class="d principles">
+                        <h3>Principles <span style="font-size:0.7em;background:rgba(72,219,251,0.2);padding:2px 8px;border-radius:10px">You follow them</span></h3>
+                        <p>Personal operating rules you adhere to.</p>
+                        <div class="items" id="principles"></div>
+                    </div>
+                    <div class="d values">
+                        <h3>Values <span style="font-size:0.7em;background:rgba(80,200,120,0.2);padding:2px 8px;border-radius:10px">You live them</span></h3>
+                        <p>Inherently relational — requires others.</p>
+                        <div class="items" id="values"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="info">
+                <h3>🌴 Desert Island Test</h3>
+                <p>Values require others to practice. Stranded alone, you cannot practice generosity if there is no one to receive.</p>
+                <div class="test"><strong>Try it:</strong> Click values to test. Only relational values (generosity, justice, compassion) pass.</div>
+                <div class="items" style="margin-top:16px" id="test"></div>
+            </div>
+        </div>
+        <div class="controls">
+            <button class="btn" onclick="add('needs')">+ Need</button>
+            <button class="btn" onclick="add('beliefs')">+ Belief</button>
+            <button class="btn" onclick="add('principles')">+ Principle</button>
+            <button class="btn" onclick="add('values')">+ Value</button>
+            <button class="btn secondary" onclick="reset()">🔄 Reset</button>
+        </div>
+    </div>
+    <script>
+        const seed = { needs: [], beliefs: [], principles: [], values: [] };
+        const samples = {
+            needs: ['Community Connection', 'Safety', 'Meaningful Work', 'Creative Expression'],
+            beliefs: ['Regenerative systems replace extractive ones', 'Communities are living organisms', 'Trust emerges from coherence'],
+            principles: ['Radical Transparency', 'No Extraction', 'Fractal Growth', 'Co-Creation'],
+            values: ['Generosity', 'Integrity', 'Compassion', 'Justice', 'Courage']
+        };
+        function add(type) {
+            const item = samples[type][Math.floor(Math.random() * samples[type].length)];
+            if (!seed[type].includes(item)) {
+                seed[type].push(item);
+                updateUI();
+            }
+        }
+        function updateUI() {
+            ['needs', 'beliefs', 'principles', 'values'].forEach(type => {
+                document.getElementById(type).innerHTML = seed[type].map(i => '<span class="item">' + i + '</span>').join('');
+            });
+        }
+        function reset() {
+            seed.needs = [];
+            seed.beliefs = [];
+            seed.principles = [];
+            seed.values = [];
+            updateUI();
+        }
+        // Initialize
+        add('needs');
+        add('beliefs');
+        add('principles');
+        add('values');
+    </script>
+</body>
+</html>

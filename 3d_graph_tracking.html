@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Graph Tracking</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #0a0a0f; overflow: hidden; font-family: -apple-system, system-ui, sans-serif; }
+        #info { position: absolute; top: 20px; left: 20px; color: #888; }
+        #info h1 { color: #50c878; font-size: 1.2em; margin-bottom: 8px; }
+        #info p { font-size: 0.85em; }
+    </style>
+</head>
+<body>
+    <div id="info"><h1>3D Graph Tracking</h1><p>Click nodes to select • Drag to rotate</p></div>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x0a0a0f);
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 30;
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+
+        // Create nodes
+        const nodeCount = 30;
+        const nodes = [];
+        const nodeGeometry = new THREE.SphereGeometry(1, 16, 16);
+        
+        for (let i = 0; i < nodeCount; i++) {
+            const material = new THREE.MeshBasicMaterial({ color: new THREE.Color().setHSL(0.4 + Math.random() * 0.2, 0.7, 0.5) });
+            const mesh = new THREE.Mesh(nodeGeometry, material);
+            mesh.position.set((Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40);
+            scene.add(mesh);
+            nodes.push(mesh);
+        }
+
+        // Create edges
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0x333333, transparent: true, opacity: 0.5 });
+        for (let i = 0; i < nodeCount; i++) {
+            for (let j = i + 1; j < nodeCount; j++) {
+                if (Math.random() > 0.85) {
+                    const points = [nodes[i].position, nodes[j].position];
+                    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                    const line = new THREE.Line(geometry, lineMaterial);
+                    scene.add(line);
+                }
+            }
+        }
+
+        const pointLight = new THREE.PointLight(0x50c878, 1, 100);
+        pointLight.position.set(10, 10, 10);
+        scene.add(pointLight);
+
+        function animate() {
+            requestAnimationFrame(animate);
+            nodes.forEach((node, i) => {
+                node.position.x += Math.sin(Date.now() * 0.001 + i) * 0.01;
+                node.position.y += Math.cos(Date.now() * 0.001 + i) * 0.01;
+            });
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
+    </script>
+</body>
+</html>
