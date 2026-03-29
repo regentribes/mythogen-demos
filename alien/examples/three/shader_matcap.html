@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <title>Matcap — Alien.js</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono">
+    <link rel="stylesheet" href="../assets/css/style.css">
+
+    <script type="module" src="../../../lib/alien.three.js"></script>
+    <script type="module">
+        import { AssetLoader, Color, ColorManagement, Group, LinearSRGBColorSpace, Mesh, MeshMatcapMaterial, PerspectiveCamera, Scene, SphereGeometry, Texture, TextureLoader, Vector2, WebGLRenderer, getFullscreenTriangle, ticker } from '../../../lib/alien.three.js';
+
+        import periodic3d from '../../src/shaders/modules/noise/periodic3d.glsl.js';
+
+        class SceneView extends Group {
+            constructor() {
+                super();
+
+                this.initMesh();
+            }
+
+            async initMesh() {
+                const { loadTexture, time } = WorldController;
+
+                const geometry = new SphereGeometry(1, 80, 80);
+
+                const matcap = await loadTexture('matcaps/040full.jpg');
+                // const matcap = await loadTexture('matcaps/defaultwax.jpg');
+
+                const material = new MeshMatcapMaterial({ matcap });
+
+                // Based on https://github.com/spite/perlin-experiments
+
+                material.onBeforeCompile = shader => {
+                    shader.uniforms.time = time;
+
+                    shader.vertexShader = shader.vertexShader.replace(
+                        'void main() {',
+                        /* glsl */ `
+                        uniform float time;
+
+                        ${periodic3d}
+
+                        void main() {
+                        `
+                    );
+
+                    shader.vertexShader = shader.vertexShader.replace(
+                        '#include <begin_vertex>',
+                        /* glsl */ `
+                        float f = 0.05 * pnoise(vec3(2.0 * normal + time), vec3(10.0));
+                        vec3 transformed = position + f * normal;
+                        `
+                    );
+                };
+
+                const mesh = new Mesh(geometry, material);
+                this.add(mesh);
+
+                this.mesh = mesh;
+            }
+
+            // Public methods
+
+            updateMatcap(texture) {
+                if (this.mesh.material.matcap) {
+                    this.mesh.material.matcap.dispose();
+                }
+
+                this.mesh.material.matcap = texture;
+                this.mesh.material.needsUpdate = true;
+            }
+        }
+
+        class RenderManager {
+            static init(renderer, scene, camera) {
+                this.renderer = renderer;
+                this.scene = scene;
+                this.camera = camera;
+            }
+
+            // Public methods
+
+            static resize = (width, height, dpr) => {
+                this.renderer.setPixelRatio(dpr);
+                this.renderer.setSize(width, height);
+            };
+
+            static update = () => {
+                this.renderer.render(this.scene, this.camera);
+            };
+        }
+
+        class WorldController {
+            static init() {
+                this.initWorld();
+                this.initLoaders();
+
+                this.addListeners();
+            }
+
+            static initWorld() {
+                this.renderer = new WebGLRenderer({
+                    powerPreference: 'high-performance',
+                    antialias: true
+                });
+
+                // Output canvas
+                this.element = this.renderer.domElement;
+
+                // Disable color management
+                ColorManagement.enabled = false;
+                this.renderer.outputColorSpace = LinearSRGBColorSpace;
+
+                // 3D scene
+                this.scene = new Scene();
+                this.scene.background = new Color(0x060606);
+                this.camera = new PerspectiveCamera(30);
+                this.camera.near = 0.5;
+                this.camera.far = 40;
+                this.camera.position.z = 8;
+                this.camera.lookAt(this.scene.position);
+
+                // Global geometries
+                this.screenTriangle = getFullscreenTriangle();
+
+                // Global uniforms
+                this.resolution = { value: new Vector2() };
+                this.texelSize = { value: new Vector2() };
+                this.aspect = { value: 1 };
+                this.time = { value: 0 };
+                this.frame = { value: 0 };
+            }
+
+            static initLoaders() {
+                this.assetLoader = new AssetLoader();
+
+                this.textureLoader = new TextureLoader();
+                this.textureLoader.setPath('../assets/textures/');
+            }
+
+            static addListeners() {
+                this.renderer.domElement.addEventListener('touchstart', this.onTouchStart);
+            }
+
+            // Event handlers
+
+            static onTouchStart = e => {
+                e.preventDefault();
+            };
+
+            // Public methods
+
+            static resize = (width, height, dpr) => {
+                this.camera.aspect = width / height;
+                this.camera.updateProjectionMatrix();
+
+                if (width < height) {
+                    this.camera.position.z = 10;
+                } else {
+                    this.camera.position.z = 8;
+                }
+
+                width = Math.round(width * dpr);
+                height = Math.round(height * dpr);
+
+                this.resolution.value.set(width, height);
+                this.texelSize.value.set(1 / width, 1 / height);
+                this.aspect.value = width / height;
+            };
+
+            static update = (time, delta, frame) => {
+                this.time.value = time;
+                this.frame.value = frame;
+            };
+
+            // Global handlers
+
+            static loadImage = path => this.assetLoader.loadImage(path);
+
+            static getTexture = (path, callback) => this.textureLoader.load(path, callback);
+
+            static loadTexture = path => this.textureLoader.loadAsync(path);
+        }
+
+        class App {
+            static async init() {
+                this.initWorld();
+                this.initViews();
+                this.initControllers();
+                this.initDragAndDrop();
+
+                this.addListeners();
+                this.onResize();
+            }
+
+            static initWorld() {
+                WorldController.init();
+                document.body.appendChild(WorldController.element);
+            }
+
+            static initViews() {
+                this.view = new SceneView();
+                WorldController.scene.add(this.view);
+            }
+
+            static initControllers() {
+                const { renderer, scene, camera } = WorldController;
+
+                RenderManager.init(renderer, scene, camera);
+            }
+
+            static initDragAndDrop() {
+                this.reader = new FileReader();
+            }
+
+            static addListeners() {
+                document.addEventListener('dragover', this.onDragOver);
+                document.addEventListener('drop', this.onDrop);
+                this.reader.addEventListener('load', this.onLoad);
+                window.addEventListener('resize', this.onResize);
+                ticker.add(this.onUpdate);
+                ticker.start();
+            }
+
+            // Event handlers
+
+            static onResize = () => {
+                const width = document.documentElement.clientWidth;
+                const height = document.documentElement.clientHeight;
+                const dpr = window.devicePixelRatio;
+
+                WorldController.resize(width, height, dpr);
+                RenderManager.resize(width, height, dpr);
+            };
+
+            static onUpdate = (time, delta, frame) => {
+                WorldController.update(time, delta, frame);
+                RenderManager.update(time, delta, frame);
+            };
+
+            static onDragOver = e => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'copy';
+            };
+
+            static onDrop = e => {
+                e.preventDefault();
+
+                this.reader.readAsDataURL(e.dataTransfer.files[0]);
+            };
+
+            static onLoad = async e => {
+                const image = await WorldController.loadImage(e.target.result);
+
+                const texture = new Texture(image);
+                texture.needsUpdate = true;
+
+                this.view.updateMatcap(texture);
+            };
+        }
+
+        App.init();
+    </script>
+</head>
+<body>
+</body>
+</html>
