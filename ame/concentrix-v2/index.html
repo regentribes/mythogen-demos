@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <title>Concentrix Learning v2 — Alien.js</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono">
+    <link rel="stylesheet" href="../assets/css/style.css">
+
+    <script type="module">
+        import { Color, ColorManagement, Group, IcosahedronGeometry, LinearSRGBColorSpace, MathUtils, Mesh, MeshBasicMaterial, PerspectiveCamera, RingGeometry, Scene, SphereGeometry, Vector3, WebGLRenderer, ticker } from '../build/alien.three.js';
+
+        class ConcentricNode extends Group {
+            constructor(label, isCenter) {
+                super();
+                this.isCenter = isCenter;
+                this.label = label;
+                
+                const size = isCenter ? 1.2 : 0.6;
+                const geo = isCenter ? new SphereGeometry(size, 32, 32) : new IcosahedronGeometry(size, 0);
+                const mat = new MeshBasicMaterial({ 
+                    color: isCenter ? 0x50c878 : 0x666666,
+                    transparent: true,
+                    opacity: isCenter ? 1 : 0.6
+                });
+                this.mesh = new Mesh(geo, mat);
+                this.add(this.mesh);
+            }
+            
+            activate() {
+                this.mesh.material.color.setHex(0x50c878);
+                this.mesh.material.opacity = 1;
+                this.mesh.scale.setScalar(1.3);
+            }
+            
+            deactivate() {
+                this.mesh.material.color.setHex(0x666666);
+                this.mesh.material.opacity = 0.6;
+                this.mesh.scale.setScalar(1);
+            }
+        }
+
+        class ConcentrixSystem extends Group {
+            constructor() {
+                super();
+            }
+
+            async initMesh() {
+                // Wrong: Concentric - one center
+                this.concentric = new ConcentricNode('Center', true);
+                this.concentric.position.set(-8, 0, 0);
+                this.add(this.concentric);
+                
+                for (let i = 0; i < 4; i++) {
+                    const angle = (i / 4) * Math.PI * 2;
+                    const ringGeo = new RingGeometry(1.5 + i * 0.8, 1.6 + i * 0.8, 64);
+                    const ringMat = new MeshBasicMaterial({ color: 0x333333, transparent: true, opacity: 0.3, side: 2 });
+                    const ring = new Mesh(ringGeo, ringMat);
+                    ring.rotation.x = Math.PI / 2;
+                    this.concentric.add(ring);
+                }
+                
+                // Correct: Concentrix - many centers, co-centering
+                this.nodes = [];
+                const labels = ['A', 'B', 'C', 'D', 'E'];
+                for (let i = 0; i < 5; i++) {
+                    const angle = (i / 5) * Math.PI * 2;
+                    const node = new ConcentricNode(labels[i], false);
+                    node.position.x = Math.cos(angle) * 3;
+                    node.position.y = Math.sin(angle) * 3;
+                    this.add(node);
+                    this.nodes.push(node);
+                    
+                    // Connection lines
+                    for (let j = i + 1; j < 5; j++) {
+                        const nextAngle = (j / 5) * Math.PI * 2;
+                        const lineGeo = new SphereGeometry(0.1, 8, 8);
+                        const lineMat = new MeshBasicMaterial({ color: 0x50c878, transparent: true, opacity: 0.3 });
+                        const line = new Mesh(lineGeo, lineMat);
+                        line.position.x = (Math.cos(angle) + Math.cos(nextAngle)) / 2 * 3;
+                        line.position.y = (Math.sin(angle) + Math.sin(nextAngle)) / 2 * 3;
+                        this.add(line);
+                    }
+                }
+                
+                this.activeNode = 0;
+                this.nodes[0].activate();
+            }
+
+            shiftCenter() {
+                this.nodes[this.activeNode].deactivate();
+                this.activeNode = (this.activeNode + 1) % this.nodes.length;
+                this.nodes[this.activeNode].activate();
+            }
+
+            update(time) {
+                // Rotate
+                this.concentric.rotation.z += 0.01;
+                this.nodes.forEach((n, i) => {
+                    n.mesh.rotation.y += 0.02;
+                    // Pulse active
+                    if (i === this.activeNode) {
+                        const pulse = Math.sin(time * 3) * 0.1 + 1;
+                        n.mesh.scale.setScalar(1.3 * pulse);
+                    }
+                });
+            }
+        }
+
+        class WorldController {
+            static async init() {
+                ColorManagement.enabled = true;
+                ColorManagement.outputColorSpace = LinearSRGBColorSpace;
+
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                document.body.appendChild(this.renderer.domElement);
+
+                await this.resize();
+                window.addEventListener('resize', () => this.resize());
+            }
+
+            static async resize() {
+                this.camera.aspect = window.innerWidth / window.innerHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+        }
+
+        WorldController.renderer = new WebGLRenderer({ antialias: true });
+        WorldController.camera = new PerspectiveCamera(50, 1, 0.1, 100);
+        WorldController.camera.position.z = 20;
+
+        WorldController.scene = new Scene();
+        WorldController.scene.background = new Color(0x0a0a0f);
+
+        await WorldController.init();
+
+        const cx = new ConcentrixSystem();
+        WorldController.scene.add(cx);
+        await cx.initMesh();
+
+        let time = 0;
+        
+        // Shift center every 3 seconds
+        setInterval(() => cx.shiftCenter(), 3000);
+        
+        ticker.add(() => {
+            time += 0.016;
+            cx.update(time);
+            
+            WorldController.renderer.render(WorldController.scene, WorldController.camera);
+        });
+
+        document.addEventListener('click', () => cx.shiftCenter());
+    </script>
+    <style>
+        body { margin: 0; overflow: hidden; background: #0a0a0f; }
+        #info { position: absolute; top: 20px; left: 20px; color: #fff; font-family: 'Roboto Mono', monospace; font-size: 11px; background: rgba(0,0,0,0.6); padding: 15px; border-radius: 8px; max-width: 220px; }
+        #info h1 { color: #feca57; margin: 0 0 10px 0; font-size: 13px; }
+        #info h2 { color: #50c878; margin: 15px 0 8px 0; font-size: 12px; }
+        #info p { margin: 4px 0; color: #888; }
+        .hint { color: #50c878 !important; font-size: 10px; }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <h1>🎯 Concentrix Learning Matrix</h1>
+        <h2>❌ Concentric (WRONG)</h2>
+        <p>One fixed center</p>
+        <p>Hierarchical rings</p>
+        <h2>✅ Concentrix (CORRECT)</h2>
+        <p>Many centers, co-centering</p>
+        <p>Polycentric emergence</p>
+        <p class="hint">Click to shift active center</p>
+    </div>
+</body>
+</html>

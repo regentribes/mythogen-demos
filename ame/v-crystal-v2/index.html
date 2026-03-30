@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <title>V-Crystal Immune System v2 — Alien.js</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono">
+    <link rel="stylesheet" href="../assets/css/style.css">
+
+    <script type="module">
+        import { Color, ColorManagement, DirectionalLight, Group, HemisphereLight, IcosahedronGeometry, LinearSRGBColorSpace, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, SphereGeometry, Vector3, WebGLRenderer, ticker } from '../build/alien.three.js';
+
+        class VCPosition extends Group {
+            constructor(color, label, angle, isHealer) {
+                super();
+                this.isHealer = isHealer;
+                
+                // Crystal shape
+                const geo = isHealer ? new SphereGeometry(0.8, 32, 32) : new IcosahedronGeometry(0.6, 0);
+                const mat = new MeshBasicMaterial({ 
+                    color: new Color(color),
+                    transparent: true,
+                    opacity: 0.8
+                });
+                this.mesh = new Mesh(geo, mat);
+                this.add(this.mesh);
+                
+                // Position on circle
+                this.position.x = Math.cos(angle) * 5;
+                this.position.y = Math.sin(angle) * 5;
+                
+                this.label = label;
+                this.baseOpacity = 0.5;
+            }
+            
+            setActive(active) {
+                this.mesh.material.opacity = active ? 1 : this.baseOpacity;
+                this.mesh.scale.setScalar(active ? 1.3 : 1);
+            }
+            
+            pulse(time) {
+                const pulse = Math.sin(time * 3) * 0.1 + 1;
+                this.mesh.scale.multiplyScalar(this.isHealer ? pulse : 1);
+            }
+        }
+
+        class VCrystalSystem extends Group {
+            constructor() {
+                super();
+            }
+
+            async initMesh() {
+                // 6 positions: Victor, Villain, Victim, Vengeful, Virtuous, Vulnerable
+                const positions = [
+                    { color: 0xffd700, label: 'Victor', angle: 0 },
+                    { color: 0xff4444, label: 'Villain', angle: Math.PI / 3 },
+                    { color: 0xff6b6b, label: 'Victim', angle: 2 * Math.PI / 3 },
+                    { color: 0xa55eea, label: 'Vengeful', angle: Math.PI },
+                    { color: 0x50c878, label: 'Virtuous', angle: 4 * Math.PI / 3 },
+                    { color: 0x00d4ff, label: 'Vulnerable', angle: 5 * Math.PI / 3, healer: true }
+                ];
+                
+                this.positions = positions.map(p => {
+                    const vc = new VCPosition(p.color, p.label, p.angle, p.healer);
+                    this.add(vc);
+                    return vc;
+                });
+                
+                // Center crystal
+                const centerGeo = new IcosahedronGeometry(1.5, 1);
+                const centerMat = new MeshBasicMaterial({ 
+                    color: 0x50c878,
+                    transparent: true,
+                    opacity: 0.3
+                });
+                this.center = new Mesh(centerGeo, centerMat);
+                this.add(this.center);
+                
+                this.activeIndex = -1;
+            }
+
+            activate(index) {
+                this.activeIndex = index;
+                this.positions.forEach((p, i) => {
+                    p.setActive(i === index);
+                });
+                
+                // If vulnerable (index 5), show healing effect
+                if (index === 5) {
+                    this.center.material.opacity = 0.8;
+                    this.center.material.color.setHex(0x00d4ff);
+                } else {
+                    this.center.material.opacity = 0.3;
+                    this.center.material.color.setHex(0x50c878);
+                }
+            }
+
+            breakCycle() {
+                // Vulnerability breaks the 3V cycle
+                this.activate(5); // Vulnerable
+            }
+
+            update(time) {
+                this.positions.forEach(p => p.pulse(time));
+                this.center.rotation.y += 0.01;
+                this.center.rotation.x += 0.005;
+            }
+        }
+
+        class WorldController {
+            static async init() {
+                ColorManagement.enabled = true;
+                ColorManagement.outputColorSpace = LinearSRGBColorSpace;
+
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                document.body.appendChild(this.renderer.domElement);
+
+                await this.resize();
+                window.addEventListener('resize', () => this.resize());
+            }
+
+            static async resize() {
+                this.camera.aspect = window.innerWidth / window.innerHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+        }
+
+        WorldController.renderer = new WebGLRenderer({ antialias: true });
+        WorldController.camera = new PerspectiveCamera(50, 1, 0.1, 100);
+        WorldController.camera.position.z = 15;
+
+        WorldController.scene = new Scene();
+        WorldController.scene.background = new Color(0x0a0a0f);
+
+        const ambient = new HemisphereLight(0xffffff, 0x444444, 1);
+        WorldController.scene.add(ambient);
+
+        await WorldController.init();
+
+        const vc = new VCrystalSystem();
+        WorldController.scene.add(vc);
+        await vc.initMesh();
+
+        let time = 0;
+        let cycleIndex = 0;
+        let cycleTimer = 0;
+        
+        ticker.add(() => {
+            time += 0.016;
+            vc.update(time);
+            vc.rotation.z += 0.003;
+            
+            // Auto-cycle through 3V (victim, villain, victor) then break
+            cycleTimer++;
+            if (cycleTimer > 120) {
+                cycleTimer = 0;
+                cycleIndex++;
+                if (cycleIndex > 3) {
+                    vc.breakCycle(); // Vulnerable breaks cycle
+                    cycleIndex = 0;
+                } else {
+                    vc.activate(cycleIndex - 1);
+                }
+            }
+            
+            WorldController.renderer.render(WorldController.scene, WorldController.camera);
+        });
+
+        // Click to cycle manually
+        document.addEventListener('click', () => {
+            cycleIndex = 0;
+            cycleTimer = 0;
+            vc.breakCycle();
+        });
+    </script>
+    <style>
+        body { margin: 0; overflow: hidden; background: #0a0a0f; }
+        #info { position: absolute; top: 20px; left: 20px; color: #fff; font-family: 'Roboto Mono', monospace; font-size: 11px; background: rgba(0,0,0,0.6); padding: 15px; border-radius: 8px; max-width: 200px; }
+        #info h1 { color: #a55eea; margin: 0 0 10px 0; font-size: 13px; }
+        #info p { margin: 4px 0; color: #888; }
+        .healer { color: #00d4ff !important; font-weight: bold; }
+        .hint { color: #50c878 !important; font-size: 10px; margin-top: 10px !important; }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <h1>💎 V-Crystal Immune System</h1>
+        <p>3V cycle: Victor → Villain → Victim → Vengeful</p>
+        <p class="healer">🩹 Vulnerability breaks the cycle</p>
+        <p class="hint">Click to trigger healing</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <title>Field of Trust v2 — Alien.js</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono">
+    <link rel="stylesheet" href="../assets/css/style.css">
+
+    <script type="module">
+        import { Color, ColorManagement, DirectionalLight, Group, HemisphereLight, LinearSRGBColorSpace, MathUtils, Mesh, MeshBasicMaterial, OrthographicCamera, PerspectiveCamera, PlaneGeometry, Reflector, ReflectorDudvMaterial, Scene, SceneCompositeDistortionMaterial, SphereGeometry, Vector2, Vector3, WebGLRenderTarget, WebGLRenderer, getFullscreenTriangle, ticker } from '../build/alien.three.js';
+
+        class TrustNode extends Group {
+            constructor(color, label, value) {
+                super();
+                this.value = value;
+                this.label = label;
+                
+                const geometry = new SphereGeometry(1, 32, 32);
+                const material = new MeshBasicMaterial({ 
+                    color: new Color(color),
+                    transparent: true,
+                    opacity: value
+                });
+                this.mesh = new Mesh(geometry, material);
+                this.add(this.mesh);
+            }
+            
+            setValue(v) {
+                this.value = v;
+                this.mesh.material.opacity = v;
+                this.mesh.scale.setScalar(0.5 + v * 0.5);
+            }
+        }
+
+        class TrustVisualization extends Group {
+            constructor() {
+                super();
+            }
+
+            async initMesh() {
+                // Create 5 trust indicator nodes
+                this.nodes = [];
+                const colors = [0x50c878, 0x48dbfb, 0xfeca57, 0xa55eea, 0xff6b6b];
+                const labels = ['Mutual\nSupport', 'Response\nVelocity', 'Conflict\nEngagement', 'Benefit\nDistribution', 'Psychological\nSafety'];
+                
+                for (let i = 0; i < 5; i++) {
+                    const angle = (i / 5) * Math.PI * 2 - Math.PI / 2;
+                    const node = new TrustNode(colors[i], labels[i], 0.7);
+                    node.position.x = Math.cos(angle) * 6;
+                    node.position.y = Math.sin(angle) * 6;
+                    this.add(node);
+                    this.nodes.push(node);
+                }
+                
+                // Central composite (minimum of all)
+                const centerGeo = new SphereGeometry(1.5, 32, 32);
+                const centerMat = new MeshBasicMaterial({ 
+                    color: 0x50c878,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                this.center = new Mesh(centerGeo, centerMat);
+                this.add(this.center);
+            }
+
+            update(data) {
+                // Update nodes and recalculate minimum
+                let minVal = 1;
+                this.nodes.forEach((node, i) => {
+                    const val = data[i] || 0.5;
+                    node.setValue(val);
+                    minVal = Math.min(minVal, val);
+                });
+                
+                // Hologram principle: composite is MINIMUM, not average
+                this.center.scale.setScalar(0.8 + minVal * 0.4);
+                this.center.material.opacity = minVal;
+                
+                // Pulse effect based on composite
+                const pulse = Math.sin(Date.now() * 0.003) * 0.1 + 0.9;
+                this.center.scale.multiplyScalar(pulse);
+            }
+        }
+
+        class WorldController {
+            static async init() {
+                ColorManagement.enabled = true;
+                ColorManagement.outputColorSpace = LinearSRGBColorSpace;
+
+                const { ambient,苇renderer, camera } = this;
+                
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                document.body.appendChild(this.renderer.domElement);
+
+                await this.resize();
+                window.addEventListener('resize', () => this.resize());
+            }
+
+            static async resize() {
+                this.camera.aspect = window.innerWidth / window.innerHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+        }
+
+        WorldController.renderer = new WebGLRenderer({ antialias: true });
+        WorldController.camera = new PerspectiveCamera(50, 1, 0.1, 100);
+        WorldController.camera.position.z = 20;
+
+        WorldController.scene = new Scene();
+        WorldController.scene.background = new Color(0x0a0a0f);
+
+        const ambient = new HemisphereLight(0xffffff, 0x444444, 1);
+        WorldController.scene.add(ambient);
+
+        await WorldController.init();
+
+        // Add trust visualization
+        const trustViz = new TrustVisualization();
+        WorldController.scene.add(trustViz);
+        await trustViz.initMesh();
+
+        // Simulation data
+        let targetValues = [0.7, 0.7, 0.7, 0.7, 0.7];
+        let currentValues = [...targetValues];
+
+        // Click to randomize
+        document.addEventListener('click', () => {
+            targetValues = targetValues.map(() => Math.random() * 0.6 + 0.3);
+        });
+
+        ticker.add(() => {
+            // Smooth interpolation
+            currentValues = currentValues.map((v, i) => {
+                return v + (targetValues[i] - v) * 0.05;
+            });
+            trustViz.update(currentValues);
+            
+            trustViz.rotation.y += 0.002;
+            
+            WorldController.renderer.render(WorldController.scene, WorldController.camera);
+        });
+    </script>
+    <style>
+        body { margin: 0; overflow: hidden; background: #0a0a0f; }
+        #info { position: absolute; top: 20px; left: 20px; color: #fff; font-family: 'Roboto Mono', monospace; font-size: 12px; background: rgba(0,0,0,0.5); padding: 10px 15px; border-radius: 8px; }
+        #info h1 { color: #50c878; margin: 0 0 8px 0; font-size: 16px; }
+        #info p { margin: 4px 0; color: #888; }
+        .hint { color: #50c878 !important; font-size: 11px; margin-top: 8px !important; }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <h1>🔮 Field of Trust v2</h1>
+        <p>Click anywhere to randomize values</p>
+        <p class="hint">Hologram principle: composite = minimum</p>
+    </div>
+</body>
+</html>

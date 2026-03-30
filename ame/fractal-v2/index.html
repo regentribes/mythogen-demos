@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <title>Fractal Growth v2 — Alien.js</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono">
+    <link rel="stylesheet" href="../assets/css/style.css">
+
+    <script type="module">
+        import { Color, ColorManagement, Group, IcosahedronGeometry, LinearSRGBColorSpace, Mesh, MeshBasicMaterial, OctahedronGeometry, PerspectiveCamera, Scene, SphereGeometry, Vector3, WebGLRenderer, ticker } from '../build/alien.three.js';
+
+        class FractalPod extends Group {
+            constructor(depth, parentPos) {
+                super();
+                this.depth = depth;
+                this.grown = false;
+                this.growProgress = 0;
+                
+                // Pod core
+                const size = 0.5 - depth * 0.1;
+                const geo = depth % 2 === 0 ? new IcosahedronGeometry(size, 0) : new OctahedronGeometry(size, 0);
+                const mat = new MeshBasicMaterial({ 
+                    color: new Color().setHSL(0.35 + depth * 0.05, 0.7, 0.5),
+                    transparent: true,
+                    opacity: 0
+                });
+                this.mesh = new Mesh(geo, mat);
+                this.add(this.mesh);
+                
+                // Members (5 small spheres inside)
+                this.members = [];
+                for (let i = 0; i < 5; i++) {
+                    const angle = (i / 5) * Math.PI * 2;
+                    const memberGeo = new SphereGeometry(0.1, 8, 8);
+                    const memberMat = new MeshBasicMaterial({ 
+                        color: new Color().setHSL(0.35 + depth * 0.05, 0.6, 0.6),
+                        transparent: true,
+                        opacity: 0
+                    });
+                    const member = new Mesh(memberGeo, memberMat);
+                    member.position.x = Math.cos(angle) * size * 0.6;
+                    member.position.y = Math.sin(angle) * size * 0.6;
+                    this.add(member);
+                    this.members.push(member);
+                }
+                
+                this.position.copy(parentPos);
+            }
+            
+            grow() {
+                this.grown = true;
+            }
+            
+            update(time) {
+                if (this.grown && this.growProgress < 1) {
+                    this.growProgress += 0.02;
+                    this.mesh.material.opacity = this.growProgress;
+                    this.members.forEach(m => m.material.opacity = this.growProgress);
+                    this.mesh.scale.setScalar(this.growProgress);
+                }
+                
+                // Gentle rotation
+                this.mesh.rotation.y += 0.01 * (1 - this.depth * 0.2);
+                this.mesh.rotation.x += 0.005 * (1 - this.depth * 0.2);
+            }
+        }
+
+        class FractalGrowth extends Group {
+            constructor() {
+                super();
+            }
+
+            async initMesh() {
+                this.pods = [];
+                this.podPositions = [];
+                
+                // Root pod
+                const root = new FractalPod(0, new Vector3(0, 0, 0));
+                root.grow();
+                root.mesh.material.opacity = 1;
+                root.members.forEach(m => m.material.opacity = 1);
+                this.add(root);
+                this.pods.push(root);
+                this.podPositions.push(new Vector3(0, 0, 0));
+                
+                // 100 pods of 5 = 500 total
+                this.targetCount = 100;
+                this.currentCount = 1;
+                this.spawnTimer = 0;
+            }
+            
+            spawnPod() {
+                if (this.currentCount >= this.targetCount) return;
+                
+                // Spawn from random existing pod
+                const parentIdx = Math.floor(Math.random() * this.pods.length);
+                const parent = this.pods[parentIdx];
+                const parentPos = parent.position.clone();
+                
+                // Random offset
+                const angle = Math.random() * Math.PI * 2;
+                const r = 2 + Math.random() * 3;
+                parentPos.x += Math.cos(angle) * r;
+                parentPos.y += Math.sin(angle) * r;
+                parentPos.z += (Math.random() - 0.5) * 2;
+                
+                // Depth limited to 3 for performance
+                const depth = Math.min(parent.depth + 1, 3);
+                const pod = new FractalPod(depth, parentPos);
+                pod.grow();
+                this.add(pod);
+                this.pods.push(pod);
+                this.podPositions.push(parentPos);
+                this.currentCount++;
+            }
+
+            update(time) {
+                // Spawn new pods
+                this.spawnTimer++;
+                if (this.spawnTimer > 5 && this.currentCount < this.targetCount) {
+                    this.spawnPod();
+                    this.spawnTimer = 0;
+                }
+                
+                this.pods.forEach(pod => pod.update(time));
+                
+                // Rotate whole system
+                this.rotation.y += 0.003;
+                this.rotation.z += 0.001;
+            }
+        }
+
+        class WorldController {
+            static async init() {
+                ColorManagement.enabled = true;
+                ColorManagement.outputColorSpace = LinearSRGBColorSpace;
+
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                document.body.appendChild(this.renderer.domElement);
+
+                await this.resize();
+                window.addEventListener('resize', () => this.resize());
+            }
+
+            static async resize() {
+                this.camera.aspect = window.innerWidth / window.innerHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+        }
+
+        WorldController.renderer = new WebGLRenderer({ antialias: true });
+        WorldController.camera = new PerspectiveCamera(50, 1, 0.1, 100);
+        WorldController.camera.position.z = 25;
+
+        WorldController.scene = new Scene();
+        WorldController.scene.background = new Color(0x0a0a0f);
+
+        await WorldController.init();
+
+        const fractal = new FractalGrowth();
+        WorldController.scene.add(fractal);
+        await fractal.initMesh();
+
+        ticker.add(() => {
+            fractal.update(Date.now() * 0.001);
+            WorldController.renderer.render(WorldController.scene, WorldController.camera);
+        });
+
+        // Click to spawn more
+        document.addEventListener('click', () => {
+            for (let i = 0; i < 10; i++) fractal.spawnPod();
+        });
+    </script>
+    <style>
+        body { margin: 0; overflow: hidden; background: #0a0a0f; }
+        #info { position: absolute; top: 20px; left: 20px; color: #fff; font-family: 'Roboto Mono', monospace; font-size: 11px; background: rgba(0,0,0,0.6); padding: 15px; border-radius: 8px; }
+        #info h1 { color: #a55eea; margin: 0 0 10px 0; font-size: 13px; }
+        #info p { margin: 4px 0; color: #888; }
+        .count { color: #a55eea !important; font-weight: bold; }
+        .hint { color: #50c878 !important; font-size: 10px; }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <h1>🌀 Fractal Growth</h1>
+        <p class="count">Pod count: <span id="count">1</span> / 100</p>
+        <p>100 pods of 5</p>
+        <p>Growth through multiplication</p>
+        <p class="hint">Click to spawn more pods</p>
+    </div>
+</body>
+</html>

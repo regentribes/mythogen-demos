@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <title>Living Seed Pattern v2 — Alien.js</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono">
+    <link rel="stylesheet" href="../assets/css/style.css">
+
+    <script type="module">
+        import { Color, ColorManagement, DirectionalLight, Group, HemisphereLight, LinearSRGBColorSpace, MathUtils, Mesh, MeshBasicMaterial, OctahedronGeometry, PerspectiveCamera, RingGeometry, Scene, SphereGeometry, Vector2, Vector3, WebGLRenderer, ticker } from '../build/alien.three.js';
+
+        class OrbitalRing extends Group {
+            constructor(color, size, speed, nodeCount) {
+                super();
+                this.speed = speed;
+                this.nodes = [];
+                
+                // Ring
+                const ringGeo = new RingGeometry(size - 0.1, size, 64);
+                const ringMat = new MeshBasicMaterial({ 
+                    color: color,
+                    transparent: true,
+                    opacity: 0.3,
+                    side: 2
+                });
+                const ring = new Mesh(ringGeo, ringMat);
+                this.add(ring);
+                
+                // Nodes on ring
+                for (let i = 0; i < nodeCount; i++) {
+                    const angle = (i / nodeCount) * Math.PI * 2;
+                    const nodeGeo = new SphereGeometry(0.4, 16, 16);
+                    const nodeMat = new MeshBasicMaterial({ 
+                        color: color,
+                        transparent: true,
+                        opacity: 0.8
+                    });
+                    const node = new Mesh(nodeGeo, nodeMat);
+                    node.userData.angle = angle;
+                    this.add(node);
+                    this.nodes.push(node);
+                }
+            }
+            
+            update(time) {
+                this.rotation.z = time * this.speed;
+                this.nodes.forEach((node, i) => {
+                    const angle = node.userData.angle + this.rotation.z;
+                    node.position.x = Math.cos(angle) * 2.5;
+                    node.position.y = Math.sin(angle) * 2.5;
+                });
+            }
+        }
+
+        class LivingSeed extends Group {
+            constructor() {
+                super();
+            }
+
+            async initMesh() {
+                // Four Distinctions as orbital rings
+                this.rings = [
+                    new OrbitalRing(0xff6b6b, 3, 0.3, 3),   // Needs - red
+                    new OrbitalRing(0xfeca57, 5, -0.2, 4),  // Beliefs - yellow
+                    new OrbitalRing(0x48dbfb, 7, 0.15, 5),  // Principles - blue
+                    new OrbitalRing(0x50c878, 9, -0.1, 6)   // Values - green
+                ];
+                
+                this.rings.forEach(ring => this.add(ring));
+                
+                // Center seed
+                const centerGeo = new OctahedronGeometry(1, 0);
+                const centerMat = new MeshBasicMaterial({ 
+                    color: 0x50c878,
+                    transparent: true,
+                    opacity: 0.9
+                });
+                this.center = new Mesh(centerGeo, centerMat);
+                this.add(this.center);
+            }
+
+            update(time) {
+                this.rings.forEach(ring => ring.update(time));
+                this.center.rotation.y += 0.01;
+                this.center.rotation.x += 0.005;
+                
+                // Pulse
+                const pulse = Math.sin(time * 2) * 0.1 + 1;
+                this.center.scale.setScalar(pulse);
+            }
+        }
+
+        class WorldController {
+            static async init() {
+                ColorManagement.enabled = true;
+                ColorManagement.outputColorSpace = LinearSRGBColorSpace;
+
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                document.body.appendChild(this.renderer.domElement);
+
+                await this.resize();
+                window.addEventListener('resize', () => this.resize());
+            }
+
+            static async resize() {
+                this.camera.aspect = window.innerWidth / window.innerHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+        }
+
+        WorldController.renderer = new WebGLRenderer({ antialias: true });
+        WorldController.camera = new PerspectiveCamera(50, 1, 0.1, 100);
+        WorldController.camera.position.z = 25;
+
+        WorldController.scene = new Scene();
+        WorldController.scene.background = new Color(0x0a0a0f);
+
+        const ambient = new HemisphereLight(0xffffff, 0x444444, 1);
+        WorldController.scene.add(ambient);
+
+        await WorldController.init();
+
+        // Add living seed
+        const seed = new LivingSeed();
+        WorldController.scene.add(seed);
+        await seed.initMesh();
+
+        // Slowly rotate whole scene
+        let time = 0;
+        ticker.add(() => {
+            time += 0.016;
+            seed.update(time);
+            seed.rotation.z += 0.002;
+            
+            WorldController.renderer.render(WorldController.scene, WorldController.camera);
+        });
+    </script>
+    <style>
+        body { margin: 0; overflow: hidden; background: #0a0a0f; }
+        #legend { position: absolute; top: 20px; left: 20px; color: #fff; font-family: 'Roboto Mono', monospace; font-size: 11px; background: rgba(0,0,0,0.6); padding: 15px; border-radius: 8px; }
+        #legend h1 { color: #50c878; margin: 0 0 12px 0; font-size: 14px; }
+        .item { display: flex; align-items: center; margin: 6px 0; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; margin-right: 10px; }
+        .needs { background: #ff6b6b; }
+        .beliefs { background: #feca57; }
+        .principles { background: #48dbfb; }
+        .values { background: #50c878; }
+    </style>
+</head>
+<body>
+    <div id="legend">
+        <h1>🌱 Four Distinctions</h1>
+        <div class="item"><div class="dot needs"></div>Needs (individual)</div>
+        <div class="item"><div class="dot beliefs"></div>Beliefs (mental)</div>
+        <div class="item"><div class="dot principles"></div>Principles (operational)</div>
+        <div class="item"><div class="dot values"></div>Values (relational)</div>
+    </div>
+</body>
+</html>
